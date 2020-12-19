@@ -7,13 +7,14 @@ SCREEN_TITLE= "Typo"
 
 def main():
     ac.open_window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE,resizable=True)
-    ac.set_background_color(ac.color.AERO_BLUE)
+    ac.set_background_color(ac.color.BLACK)
     ac.start_render()
-    draw_rectangle(200,100)
+    draw_rectangle(0,-100,640)
     ac.finish_render()
     ac.run()
 
-def draw_rectangle(x,y):
-    ac.draw_rectangle_outline(x,y,y-200,x-100,ac.color.ALLOY_ORANGE)
+#function to draw rectangles
+def draw_rectangle(x,y,w,h=w/3):
+    ac.draw_rectangle_outline(x+640,y+360,w,h,ac.color.WHITE_SMOKE)
 
 main()
