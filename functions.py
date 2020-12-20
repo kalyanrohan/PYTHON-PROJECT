@@ -1,4 +1,4 @@
-import arcade as ac
+import ac as ac
 
 #testing out the functions
 SCREEN_WIDTH= 1280
@@ -14,7 +14,9 @@ def main():
     ac.run()
 
 #function to draw rectangles
-def draw_rectangle(x,y,w,h=w/3):
+def draw_rectangle(x,y,w,h):
     ac.draw_rectangle_outline(x+640,y+360,w,h,ac.color.WHITE_SMOKE)
+
+#function to draw    
 
 main()
