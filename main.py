@@ -1,48 +1,176 @@
 import arcade as ac
 import random
 import time
+import arcade.gui
+from arcade.gui import UIManager
+import os
 
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 SCREEN_TITLE = "TYPO"
 
-class MenuView(ac.View):
-    def on_show(self):
-        ac.set_background_color(ac.color.WHITE)
+class MyFlatButton(ac.gui.UIFlatButton):
+    """
+    To capture a button click, subclass the button and override on_click.
+    """
+    def on_click(self):
+        """ Called when user lets off button """
+        pass
+
+class MyGhostFlatButton(ac.gui.UIGhostFlatButton):
+    """
+    For this subclass, we create a custom init, that takes in another
+    parameter, the UI text box. We use that parameter and print the contents
+    of the text entry box when the ghost button is clicked.
+    """
+
+    def __init__(self, center_x, center_y, input_box):
+        super().__init__(
+            'GhostFlatButton',
+            center_x=center_x,
+            center_y=center_y,
+            width=250,
+            # height=20
+        )
+        self.input_box = input_box
+
+    def on_click(self):
+        """ Called when user lets off button """
+        print(f"Click ghost flat button. {self.input_box.text}")
+
+
+class MainMenu(ac.View):
+    """
+    Main view. Really the only view in this example. """
+    def __init__(self):
+        super().__init__()
+
+        self.ui_manager = UIManager()
 
     def on_draw(self):
+        """ Draw this view. GUI elements are automatically drawn. """
         ac.start_render()
-        ac.draw_text("Menu Screen", SCREEN_WIDTH/2, SCREEN_HEIGHT/2,
-                         ac.color.BLACK, font_size=50, anchor_x="center")
-        ac.draw_text("Click to advance", SCREEN_WIDTH/2, SCREEN_HEIGHT/2-75,
-                         ac.color.GRAY, font_size=20, anchor_x="center")
 
-    def on_mouse_press(self, _x, _y, _button, _modifiers):
-        instructions_view = InstructionView()
-        self.window.show_view(instructions_view)
+    def on_show_view(self):
+        """ Called once when view is activated. """
+        self.setup()
+        ac.set_background_color(ac.color.AERO_BLUE)
 
-class InstructionView(ac.View):
+    def on_hide_view(self):
+        self.ui_manager.unregister_handlers()
+
+    def setup(self):
+        """ Set up this view. """
+        self.ui_manager.purge_ui_elements()
+
+        y_slot = self.window.height // 4
+        left_column_x = self.window.width // 4
+        right_column_x = 3 * self.window.width // 4
+
+        # left side elements
+        
+        ui_input_box = ac.gui.UIInputBox(
+            center_x=left_column_x,
+            center_y=y_slot * 2,
+            width=300
+        )
+        ui_input_box.text = 'UIInputBox'
+        ui_input_box.cursor_index = len(ui_input_box.text)
+        self.ui_manager.add_ui_element(ui_input_box)
+
+        # right side elements
+        button = MyFlatButton(
+            'FlatButton',
+            center_x=right_column_x,
+            center_y=y_slot * 1,
+            width=250,
+            # height=20
+        )
+        self.ui_manager.add_ui_element(button)
+
+        button = MyGhostFlatButton(
+            center_x=right_column_x,
+            center_y=y_slot * 2,
+            input_box=ui_input_box
+        )
+        self.ui_manager.add_ui_element(button)
+
+class InstructionView(arcade.View):
     def on_show(self):
-        ac.set_background_color(ac.color.ORANGE_PEEL)
+        arcade.set_background_color(arcade.color.ORANGE_PEEL)
 
     def on_draw(self):
-        ac.start_render()
-        ac.draw_text("Instructions Screen", SCREEN_WIDTH/2, SCREEN_HEIGHT/2,
-                         ac.color.BLACK, font_size=50, anchor_x="center")
-        ac.draw_text("Click to advance", SCREEN_WIDTH/2, SCREEN_HEIGHT/2-75,
-                         ac.color.GRAY, font_size=20, anchor_x="center")
+        arcade.start_render()
+        arcade.draw_text("Instructions Screen", SCREEN_WIDTH/2, HEIGHT/2,
+                         arcade.color.BLACK, font_size=50, anchor_x="center")
+        arcade.draw_text("Click to advance", SCREEN_WIDTH/2, HEIGHT/2-75,
+                         arcade.color.GRAY, font_size=20, anchor_x="center")
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         game_view = GameView()
         self.window.show_view(game_view)
 
-def main():
-    window = ac.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-    window.total_score = 0
-    menu_view = MenuView()
-    window.show_view(menu_view)
+class GameView(ac.View):
+    def __init__(self):
+        super().__init__()
+
+        self.time_taken = 0
+
+        
+    def on_show(self):
+        ac.set_background_color(ac.color.AMAZON)
+
+        # Don't show the mouse cursor
+        self.window.set_mouse_visible(True)
+
+    def on_draw(self):
+        ac.start_render()
+        # Draw all the sprites.
+
+        # Put the text on the screen.
+        output = f"Score: 100"
+        ac.draw_text(output, 10, 30, ac.color.WHITE, 14)
+        output_total = f"Total Score: {100}"
+        ac.draw_text(output_total, 10, 10, ac.color.WHITE, 14)
+
+    def on_update(self, delta_time):
+        self.time_taken += delta_time
+
+        # Call update on all sprites (The sprites don't do much in this
+        # example though.)
+
+        
+class GameOverView(ac.View):
+    def __init__(self):
+        super().__init__()
+        self.time_taken = 0
+
+    def on_show(self):
+        ac.set_background_color(ac.color.BLACK)
+
+    def on_draw(self):
+        ac.start_render()
+        """
+        Draw "Game over" across the screen.
+        """
+        ac.draw_text("Game Over", 240, 400, ac.color.WHITE, 54)
+        ac.draw_text("Click to restart", 310, 300, ac.color.WHITE, 24)
+
+        time_taken_formatted = f"{round(self.time_taken, 2)} seconds"
+        ac.draw_text(f"Time taken: {time_taken_formatted}",SCREEN_WIDTH/2,200,ac.color.GRAY,font_size=15,
+        anchor_x="center")
+
+        output_total = f"Total Score: 100"
+        ac.draw_text(output_total, 10, 10, ac.color.WHITE, 14)
+
+    def on_mouse_press(self, _x, _y, _button, _modifiers):
+        game_view = GameView()
+        self.window.show_view(game_view)
+
+
+
+if __name__ == '__main__':
+    window = ac.Window(SCREEN_WIDTH,SCREEN_HEIGHT,SCREEN_TITLE)
+    view = GameOverView()
+    window.show_view(view)
     ac.run()
-
-
-if __name__ == "__main__":
-    main()
