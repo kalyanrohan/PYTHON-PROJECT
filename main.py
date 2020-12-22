@@ -9,13 +9,15 @@ SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 SCREEN_TITLE = "TYPO"
 
-class MyFlatButton(ac.gui.UIFlatButton):
+class MyFlatButton(ac.gui.UIFlatButton,ac.View):
     """
     To capture a button click, subclass the button and override on_click.
     """
     def on_click(self):
-        """ Called when user lets off button """
-        pass
+        instructions_view = InstructionView()
+        self.window.show_view(instructions_view)
+
+        
 
 class MyGhostFlatButton(ac.gui.UIGhostFlatButton):
     """
@@ -63,37 +65,14 @@ class MainMenu(ac.View):
         """ Set up this view. """
         self.ui_manager.purge_ui_elements()
 
-        y_slot = self.window.height // 4
-        left_column_x = self.window.width // 4
-        right_column_x = 3 * self.window.width // 4
+        y=self.window.height//2
+        x=self.window.width//2
 
-        # left side elements
-        
-        ui_input_box = ac.gui.UIInputBox(
-            center_x=left_column_x,
-            center_y=y_slot * 2,
-            width=300
-        )
-        ui_input_box.text = 'UIInputBox'
-        ui_input_box.cursor_index = len(ui_input_box.text)
-        self.ui_manager.add_ui_element(ui_input_box)
+        play_button=MyFlatButton('PLAY',center_x=x,center_y=y,width=250,height=100,align="center")
+        self.ui_manager.add_ui_element(play_button)
 
-        # right side elements
-        button = MyFlatButton(
-            'FlatButton',
-            center_x=right_column_x,
-            center_y=y_slot * 1,
-            width=250,
-            # height=20
-        )
-        self.ui_manager.add_ui_element(button)
-
-        button = MyGhostFlatButton(
-            center_x=right_column_x,
-            center_y=y_slot * 2,
-            input_box=ui_input_box
-        )
-        self.ui_manager.add_ui_element(button)
+        htp_button=MyFlatButton('How to Play',center_x=x,center_y=y-100,width=250,height=100,align="center")
+        self.ui_manager.add_ui_element(play_button)
 
 class InstructionView(arcade.View):
     def on_show(self):
@@ -171,6 +150,6 @@ class GameOverView(ac.View):
 
 if __name__ == '__main__':
     window = ac.Window(SCREEN_WIDTH,SCREEN_HEIGHT,SCREEN_TITLE)
-    view = GameOverView()
+    view = MainMenu()
     window.show_view(view)
     ac.run()
