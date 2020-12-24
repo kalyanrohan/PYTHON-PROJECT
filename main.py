@@ -5,21 +5,32 @@ import arcade.gui
 from arcade.gui import UIManager
 import os
 
+open('sentences.txt',mode='r',encoding='utf-8')
+
+
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 SCREEN_TITLE = "TYPO"
+f=open('sentences.txt',mode='r',encoding='utf-8')
+sentences=f.read().split('\n')
 
-class MyFlatButton(ac.gui.UIFlatButton,ac.View):
+class Button(ac.gui.UIFlatButton,ac.View):
     """
     To capture a button click, subclass the button and override on_click.
     """
+    def __init__(self,text,center_x,center_y,width,height,align):
+        super().__init__(text=text,center_x=x,center_y=y,width=250,height=100,align='center')
+        
+    
     def on_click(self):
-        instructions_view = InstructionView()
-        self.window.show_view(instructions_view)
-
+        if self.text=='Play':
+            instruction=InstructionView()
+            instruction.se
         
 
-class MyGhostFlatButton(ac.gui.UIGhostFlatButton):
+    
+
+class Input_box(ac.gui.UIGhostFlatButton):
     """
     For this subclass, we create a custom init, that takes in another
     parameter, the UI text box. We use that parameter and print the contents
@@ -52,6 +63,7 @@ class MainMenu(ac.View):
     def on_draw(self):
         """ Draw this view. GUI elements are automatically drawn. """
         ac.start_render()
+        ac.draw_text(SCREEN_TITLE,(SCREEN_WIDTH//2-100),(SCREEN_HEIGHT//2)+150,ac.color.BLUE,72,align='center')
 
     def on_show_view(self):
         """ Called once when view is activated. """
@@ -68,55 +80,78 @@ class MainMenu(ac.View):
         y=self.window.height//2
         x=self.window.width//2
 
-        play_button=MyFlatButton('PLAY',center_x=x,center_y=y,width=250,height=100,align="center")
-        self.ui_manager.add_ui_element(play_button)
 
-        htp_button=MyFlatButton('How to Play',center_x=x,center_y=y-100,width=250,height=100,align="center")
-        self.ui_manager.add_ui_element(play_button)
 
-class InstructionView(arcade.View):
+
+class InstructionView(ac.View):
     def on_show(self):
-        arcade.set_background_color(arcade.color.ORANGE_PEEL)
+        ac.set_background_color(ac.color.ORANGE_PEEL)
 
     def on_draw(self):
-        arcade.start_render()
-        arcade.draw_text("Instructions Screen", SCREEN_WIDTH/2, HEIGHT/2,
-                         arcade.color.BLACK, font_size=50, anchor_x="center")
-        arcade.draw_text("Click to advance", SCREEN_WIDTH/2, HEIGHT/2-75,
-                         arcade.color.GRAY, font_size=20, anchor_x="center")
+        ac.start_render()
+        ac.draw_text("Instructions Screen", SCREEN_WIDTH/2, SCREEN_HEIGHT/2,
+                         ac.color.BLACK, font_size=50, anchor_x="center")
+        ac.draw_text("Click to Play", SCREEN_WIDTH/2, SCREEN_HEIGHT/2-75,
+                         ac.color.GRAY, font_size=20, anchor_x="center")
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         game_view = GameView()
+        game_view.se 
         self.window.show_view(game_view)
-
+    
 class GameView(ac.View):
+
     def __init__(self):
         super().__init__()
 
         self.time_taken = 0
+        self.score=0
+        self.text=random.choice(sentences)
+        self.ui_manager=UIManager()
+        self.input=ac.gui.UIInputBox(self.window.width//2,self.window.height//3,720)
+        self.empty=''
+        self.lives=3
 
-        
-    def on_show(self):
-        ac.set_background_color(ac.color.AMAZON)
+    
+    def on_show_view(self):
+        """ Called once when view is activated. """
+        self.setup()
+        ac.set_background_color(ac.color.BLACK)
 
-        # Don't show the mouse cursor
-        self.window.set_mouse_visible(True)
+    def on_hide_view(self):
+        self.ui_manager.unregister_handlers()
+
+
+    def setup(self):
+        self.score=0
+        self.lives=3
+        x=self.window.width
+        y=self.window.height
+        self.ui_manager.purge_ui_elements()
+
+
+        self.input.text= self.empty
+        self.input.cursor_index = len(self.input.text)
+        self.ui_manager.add_ui_element(self.input)
+
 
     def on_draw(self):
+        x=self.window.width
+        y=self.window.height
         ac.start_render()
-        # Draw all the sprites.
-
         # Put the text on the screen.
-        output = f"Score: 100"
-        ac.draw_text(output, 10, 30, ac.color.WHITE, 14)
-        output_total = f"Total Score: {100}"
+        ac.draw_text(self.text,x//2,y//2,ac.color.WHITE,font_size=20,anchor_x='center')
+        output_total = f"Total Score: {self.score}"
         ac.draw_text(output_total, 10, 10, ac.color.WHITE, 14)
+        ac.finish_render()
 
     def on_update(self, delta_time):
         self.time_taken += delta_time
+        while self.lives>0:
+           if self.input.text==self.text:
+               self.input.text==self.empty
+               self.score+=1
 
-        # Call update on all sprites (The sprites don't do much in this
-        # example though.)
 
         
 class GameOverView(ac.View):
@@ -149,7 +184,7 @@ class GameOverView(ac.View):
 
 
 if __name__ == '__main__':
-    window = ac.Window(SCREEN_WIDTH,SCREEN_HEIGHT,SCREEN_TITLE)
-    view = MainMenu()
+    window = ac.Window(SCREEN_WIDTH,SCREEN_HEIGHT,SCREEN_TITLE,resizable=True)
+    view = GameView()
     window.show_view(view)
     ac.run()
