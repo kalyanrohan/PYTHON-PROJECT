@@ -108,7 +108,7 @@ class GameView(ac.View):
         self.score=0
         self.text=random.choice(sentences)
         self.ui_manager=UIManager()
-        self.input=ac.gui.UIInputBox(self.window.width//2,self.window.height//3,720)
+        self.input=ac.gui.UIInputBox(self.window.width//2,self.window.height//3,1000)
         self.empty=''
         self.lives=3
 
@@ -140,17 +140,21 @@ class GameView(ac.View):
         y=self.window.height
         ac.start_render()
         # Put the text on the screen.
-        ac.draw_text(self.text,x//2,y//2,ac.color.WHITE,font_size=20,anchor_x='center')
+        ac.draw_text(self.text,x//2,y//2,ac.color.WHITE,font_size=16,anchor_x='center')
         output_total = f"Total Score: {self.score}"
         ac.draw_text(output_total, 10, 10, ac.color.WHITE, 14)
         ac.finish_render()
 
     def on_update(self, delta_time):
         self.time_taken += delta_time
-        while self.lives>0:
-           if self.input.text==self.text:
-               self.input.text==self.empty
-               self.score+=1
+        if self.lives>0:
+            if self.input.text==self.text and self.text!=self.empty:
+                self.score+=1
+                self.input.text=self.empty
+                self.text=self.empty
+        if self.text==self.empty:
+            self.text=random.choice(sentences)
+            GameView().on_draw()    
 
 
         
