@@ -1,11 +1,9 @@
-import arcade as ac
+import ac as ac
 import random
 import time
-import arcade.gui
-from arcade.gui import UIManager
+import ac.gui
+from ac.gui import UIManager
 import os
-
-open('sentences.txt',mode='r',encoding='utf-8')
 
 
 SCREEN_WIDTH = 1280
@@ -13,44 +11,6 @@ SCREEN_HEIGHT = 720
 SCREEN_TITLE = "TYPO"
 f=open('sentences.txt',mode='r',encoding='utf-8')
 sentences=f.read().split('\n')
-
-class Button(ac.gui.UIFlatButton,ac.View):
-    """
-    To capture a button click, subclass the button and override on_click.
-    """
-    def __init__(self,text,center_x,center_y,width,height,align):
-        super().__init__(text=text,center_x=x,center_y=y,width=250,height=100,align='center')
-        
-    
-    def on_click(self):
-        if self.text=='Play':
-            instruction=InstructionView()
-            instruction.se
-        
-
-    
-
-class Input_box(ac.gui.UIGhostFlatButton):
-    """
-    For this subclass, we create a custom init, that takes in another
-    parameter, the UI text box. We use that parameter and print the contents
-    of the text entry box when the ghost button is clicked.
-    """
-
-    def __init__(self, center_x, center_y, input_box):
-        super().__init__(
-            'GhostFlatButton',
-            center_x=center_x,
-            center_y=center_y,
-            width=250,
-            # height=20
-        )
-        self.input_box = input_box
-
-    def on_click(self):
-        """ Called when user lets off button """
-        print(f"Click ghost flat button. {self.input_box.text}")
-
 
 class MainMenu(ac.View):
     """
@@ -81,8 +41,6 @@ class MainMenu(ac.View):
         x=self.window.width//2
 
 
-
-
 class InstructionView(ac.View):
     def on_show(self):
         ac.set_background_color(ac.color.ORANGE_PEEL)
@@ -96,7 +54,7 @@ class InstructionView(ac.View):
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         game_view = GameView()
-        game_view.se 
+        game_view.setup() 
         self.window.show_view(game_view)
     
 class GameView(ac.View):
@@ -110,7 +68,13 @@ class GameView(ac.View):
         self.ui_manager=UIManager()
         self.input=ac.gui.UIInputBox(self.window.width//2,self.window.height//3,1000)
         self.empty=''
-        self.lives=3
+        self.number_of_sentences=10
+        self.time_start = 0
+        self.total_time = 0
+        self.accuracy = '0%'
+        self.results = 'Time:0 Accuracy:0 % Wpm:0 '
+        self.wpm = 0
+        self.end = False
 
     
     def on_show_view(self):
@@ -124,7 +88,6 @@ class GameView(ac.View):
 
     def setup(self):
         self.score=0
-        self.lives=3
         x=self.window.width
         y=self.window.height
         self.ui_manager.purge_ui_elements()
@@ -139,22 +102,24 @@ class GameView(ac.View):
         x=self.window.width
         y=self.window.height
         ac.start_render()
-        # Put the text on the screen.
+
         ac.draw_text(self.text,x//2,y//2,ac.color.WHITE,font_size=16,anchor_x='center')
         output_total = f"Total Score: {self.score}"
         ac.draw_text(output_total, 10, 10, ac.color.WHITE, 14)
+        ac.draw_text(self.time_taken,20,10,ac.color.WHITE,14)
+        
         ac.finish_render()
 
     def on_update(self, delta_time):
         self.time_taken += delta_time
-        if self.lives>0:
-            if self.input.text==self.text and self.text!=self.empty:
-                self.score+=1
-                self.input.text=self.empty
-                self.text=self.empty
+        if self.input.text==self.text and self.text!=self.empty:
+            self.score+=1
+            self.input.text=self.empty
+            self.text=self.empty
         if self.text==self.empty:
             self.text=random.choice(sentences)
-            GameView().on_draw()    
+            GameView().on_draw()
+
 
 
         
