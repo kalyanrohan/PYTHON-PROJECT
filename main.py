@@ -3,6 +3,7 @@ import random
 import time
 import arcade.gui
 from arcade.gui import UIManager
+from arcade.gui.ui_style import UIStyle
 import os
 open('sentences.txt',mode='r',encoding='utf-8')
 SCREEN_WIDTH = 1280
@@ -12,40 +13,16 @@ f=open('sentences.txt',mode='r',encoding='utf-8')
 sentences=f.read().split('\n')
 
 
-class Button(ac.gui.UIFlatButton,ac.View):
+class Button(ac.gui.UIFlatButton):
     """
     To capture a button click, subclass the button and override on_click.
     """
-    def __init__(self,text,center_x,center_y,width,height,align):
-        super().__init__(text=text,center_x=x,center_y=y,width=250,height=100,align='center')
-        
-    
     def on_click(self):
-        if self.text=='Play':
-            instruction=InstructionView()
-            instruction.se
+        if self.text.lower()=="play":
+            ac.View().window.show_view(InstructionView())
+        elif self.text.lower()=='quit':
+            ac.View().window.close()
         
-    
-class Input_box(ac.gui.UIGhostFlatButton):
-    """
-    For this subclass, we create a custom init, that takes in another
-    parameter, the UI text box. We use that parameter and print the contents
-    of the text entry box when the ghost button is clicked.
-    """
-    def __init__(self, center_x, center_y, input_box):
-        super().__init__(
-            'GhostFlatButton',
-            center_x=center_x,
-            center_y=center_y,
-            width=250,
-            # height=20
-        )
-        self.input_box = input_box
-    def on_click(self):
-        """ Called when user lets off button """
-        print(f"Click ghost flat button. {self.input_box.text}")
-
-
 class MainMenu(ac.View):
     """
     Main view. Really the only view in this example. """
@@ -55,11 +32,11 @@ class MainMenu(ac.View):
     def on_draw(self):
         """ Draw this view. GUI elements are automatically drawn. """
         ac.start_render()
-        ac.draw_text(SCREEN_TITLE,(SCREEN_WIDTH//2-100),(SCREEN_HEIGHT//2)+150,ac.color.BLUE,72,align='center')
+        ac.draw_text(SCREEN_TITLE,(SCREEN_WIDTH//2-100),(SCREEN_HEIGHT//2)+150,ac.color.WHITE,72,align='center')
     def on_show_view(self):
         """ Called once when view is activated. """
         self.setup()
-        ac.set_background_color(ac.color.AERO_BLUE)
+        ac.set_background_color(ac.color.BLUEBERRY)
     def on_hide_view(self):
         self.ui_manager.unregister_handlers()
     def setup(self):
@@ -67,6 +44,10 @@ class MainMenu(ac.View):
         self.ui_manager.purge_ui_elements()
         y=self.window.height//2
         x=self.window.width//2
+        play_button=Button(text="Play",center_x=x,center_y=y,width=200,height=100,align='center')
+        self.ui_manager.add_ui_element(play_button)
+        quit_button=Button(text="Quit",center_x=x,center_y=y-150,width=200,height=100,align='center')
+        self.ui_manager.add_ui_element(quit_button)
 
 
 class InstructionView(ac.View):
@@ -80,7 +61,7 @@ class InstructionView(ac.View):
                          ac.color.GRAY, font_size=20, anchor_x="center")
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         game_view = GameView()
-        game_view.se 
+        game_view.setup()
         self.window.show_view(game_view)
     
 
@@ -94,7 +75,7 @@ class GameView(ac.View):
         self.ui_manager=UIManager()
         self.input=ac.gui.UIInputBox(self.window.width//2,self.window.height//3,1000)
         self.empty=''
-        self.sentences=1
+        self.sentences=2
         self.wpm=0
         self.start=False
         self.accuracy=0
@@ -115,6 +96,7 @@ class GameView(ac.View):
         x=self.window.width
         y=self.window.height
         self.ui_manager.purge_ui_elements()
+        self.input.set_style_attrs(font_size=14)
         self.input.text= self.empty
         self.input.cursor_index = len(self.input.text)
         self.ui_manager.add_ui_element(self.input)
@@ -135,6 +117,12 @@ class GameView(ac.View):
     def on_update(self, delta_time):
         if self.start==True:
             self.time_taken += delta_time
+            for i,c in enumerate(self.text):
+                try:
+                    if self.input.text[i]==c:
+                        self.correct_input+=1
+                except:
+                    pass
 
             if len(self.input.text)==len(self.text) and self.text!=self.empty:
                 self.score+=1
@@ -149,18 +137,13 @@ class GameView(ac.View):
             
             if self.sentences==0:
                 self.wpm=(self.char/5)//(self.time_taken/60)
-                for i,c in enumerate(self.text):
-                    try:
-                        if self.input.text[i]==c:
-                            self.correct_input+=1
-                    except:
-                        pass
                 self.accuracy=(self.correct_input/self.char)*100
                 game_over_view = GameOverView()
                 game_over_view.time_taken = self.time_taken
                 game_over_view.wpm=self.wpm
                 game_over_view.accuracy=self.accuracy
                 game_over_view.char=self.char
+                game_over_view.wrong_input=self.correct_input
                 self.window.set_mouse_visible(True)
                 self.window.show_view(game_over_view)
 
@@ -185,7 +168,7 @@ class GameOverView(ac.View):
         time_taken_formatted = f"{round(self.time_taken, 2)} seconds"
         ac.draw_text(f"Time taken: {time_taken_formatted}",SCREEN_WIDTH/2,200,ac.color.GRAY,font_size=15,anchor_x="center")
         ac.draw_text(f"words per minute (WPM): {self.wpm}",SCREEN_WIDTH/2,150,ac.color.GRAY,font_size=15,anchor_x='center')
-        ac.draw_text(f"Accuracy: {self.accuracy}%",SCREEN_WIDTH/2,100,ac.color.GRAY,font_size=15,anchor_x='center')
+        ac.draw_text(f"Accuracy: {self.wrong_input}%",SCREEN_WIDTH/2,100,ac.color.GRAY,font_size=15,anchor_x='center')
         ac.draw_text(f"Characters: {self.char}",SCREEN_WIDTH/2,50,ac.color.GRAY,font_size=15,anchor_x='center')
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
@@ -196,6 +179,6 @@ class GameOverView(ac.View):
 
 if __name__ == '__main__':
     window = ac.Window(SCREEN_WIDTH,SCREEN_HEIGHT,SCREEN_TITLE,resizable=True)
-    view = GameView()
+    view = MainMenu()
     window.show_view(view)
     ac.run()
