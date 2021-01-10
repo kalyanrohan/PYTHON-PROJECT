@@ -1,6 +1,5 @@
 import arcade as ac
 import random
-import time
 import arcade.gui
 from arcade.gui import UIManager
 from arcade.gui.ui_style import UIStyle
@@ -67,7 +66,10 @@ class MainMenu(ac.View):
         # this ui manager is from the arcade module and it controls our UI such as buttons.
         self.ui_manager = UIManager()
         #drawing the background image
-        self.background_image=ac.sprite.Sprite('computer-overhead-dribbb_1.gif',center_x=self.window.width//2,center_y=self.window.height//1.4,scale=0.3)
+        self.background_image=ac.sprite.Sprite('computer-overhead-dribbb_1.gif',
+                                                center_x=self.window.width//2,
+                                                center_y=self.window.height//1.4,
+                                                scale=0.3)
     
     """The on_draw method is called whenever we draw text,sprites and etc to the current view."""
     def on_draw(self):
@@ -129,14 +131,25 @@ class SetupView(ac.View):
         #calling the setup function when this view activates
         self.setup()
     
+    """ Called once when view is deactivated. """
+    def on_hide_view(self):
+        #removes the handlers of this view when we switch to another view from this view.
+        self.ui_manager.unregister_handlers()
+    
     """The on_draw method is called whenever we draw text,sprites and etc to the current view."""
     def on_draw(self):
         ac.start_render()
         # Draw text
-        ac.draw_text("Please enter the number of sentences.", self.window.width/2, self.window.height/2+200,ac.color.WHITE, font_size=50, anchor_x="center")    
+        ac.draw_text("Please enter the number of sentences.", self.window.width/2, 
+                    self.window.height/2+200,ac.color.WHITE, 
+                    font_size=50, 
+                    anchor_x="center")    
         # If a non integer is entered, it will result in an error. The following text will only be drawn once there is an error.
         if error==True:
-            ac.draw_text("Please enter an integer!.", self.window.width/2, self.window.height/2+150,ac.color.RED, font_size=30, anchor_x="center")    
+            ac.draw_text("Please enter an integer!.", self.window.width/2, 
+                        self.window.height/2+150,ac.color.RED, 
+                        font_size=30, 
+                        anchor_x="center")    
 
 
     """ Everything under this function will run everytime we switch to this view  """
@@ -161,11 +174,6 @@ class SetupView(ac.View):
         global number
         # Storing the input from the user in the global variable called number.
         number=self.number_of_sentences.text
-
-    """ Called once when view is deactivated. """
-    def on_hide_view(self):
-        #removes the handlers of this view when we switch to another view from this view.
-        self.ui_manager.unregister_handlers()
     
 
 """ This class is ued to show the guide of the game"""
@@ -206,9 +214,12 @@ class HowToPlay(ac.View):
     def on_draw(self):
         ac.start_render()
         # drawing the guide text and sprites to the view
-        ac.draw_text("How to Play",self.window.width/2,self.window.height/2+270,ac.color.WHITE,40,align="center",anchor_x="center")
-        ac.draw_text("1. Enter the number of sentences that you want.",self.window.width/2,self.window.height/2+200,ac.color.WHITE,30,align="center",anchor_x="center")
-        ac.draw_text("2. Start Typing in the box to start the game.",self.window.width/2,self.window.height/2+150,ac.color.WHITE,30,align="center",anchor_x="center")
+        ac.draw_text("How to Play",self.window.width/2,
+                    self.window.height/2+270,ac.color.WHITE,40,align="center",anchor_x="center")
+        ac.draw_text("1. Enter the number of sentences that you want.",self.window.width/2,
+                    self.window.height/2+200,ac.color.WHITE,30,align="center",anchor_x="center")
+        ac.draw_text("2. Start Typing in the box to start the game.",self.window.width/2,
+                    self.window.height/2+150,ac.color.WHITE,30,align="center",anchor_x="center")
         ac.draw_text("3. If the color of the box becomes red, then you have made a TYPO! \n If the box turns green then, you have inputted everything correctly.",self.window.width/2,self.window.height/2+75,ac.color.WHITE,30,align="center",anchor_x="center")
         ac.draw_text("4. You can see your typo percentage bottom left, The lower it is, the better. \n There are tiers or ranks for your typing skill and this is based on the typo rate \n or percentage and the speed of your typing (WPM)",self.window.width/2,self.window.height/2-50,ac.color.WHITE,30,align="center",anchor_x="center")
         self.emerald.draw()
@@ -455,7 +466,7 @@ class GameOverView(ac.View):
 # running the program
 if __name__ == '__main__':
     window = ac.Window(SCREEN_WIDTH,SCREEN_HEIGHT,SCREEN_TITLE,resizable=False)
-    view = HowToPlay()
+    view = MainMenu()
     window.show_view(view)
     ac.run()
 
