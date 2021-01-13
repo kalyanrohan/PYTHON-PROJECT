@@ -302,7 +302,6 @@ class GameView(ac.View):
             self.start_text=""
             # whenever there is a keystroke, the sfx will play
             ac.play_sound(self.sfx,1.0)
-            
             # iterating the sentences and user input.
             for i,c in enumerate(self.text):
                 # using the try block to allow iteration of multiple inputs and tries
@@ -311,17 +310,12 @@ class GameView(ac.View):
                     if self.input.text[i]!=c:
                         # excluding the backspace key so that it doesn't trigger any events. Backspace key is stored as 65288
                         if symbols!=65288:
-                            """ if backspace is not entered and the input doesn't match, we will add 1 to the wrong_input
-                            and set the input box color to red to indicate that a mistake have been made.
+                            """ if backspace is not entered and the input doesn't match, we will add 1 to the wrong_input.
                             """
                             self.wrong_input+=1
-                            self.input._set_color(ac.color.RED)
                         # we break the loop
                         break
                     # the loop then continues once the user enters the correct character.
-                    elif self.input.text[i]==c:
-                        # whenever the input is correct, the box will stay green.
-                        self.input._set_color(ac.color.GREEN)   
                 except:
                     pass
 
@@ -333,8 +327,24 @@ class GameView(ac.View):
             # to make life easier, instead of using the time module, I use delta time which is a running clock in seconds.
             self.time_taken += delta_time
             # I will keep udpating the rate of typo. I use the percentage of wrong input from the total input or characters.
-            self.typo=self.wrong_input/self.char*100
+            self.typo=round(self.wrong_input/self.char*100,2)
             
+             # iterating the sentences and user input.
+            for i,c in enumerate(self.text):
+                # using the try block to allow iteration of multiple inputs and tries
+                try:
+                    # checking whether the character inputted is not the same with the one in the sentence
+                    if self.input.text[i]!=c:
+                        self.input._set_color(ac.color.RED)
+                        # we break the loop
+                        break
+                    # the loop then continues once the user enters the correct character.
+                    elif self.input.text[i]==c:
+                        # whenever the input is correct, the box will stay green.
+                        self.input._set_color(ac.color.GREEN)   
+                except:
+                    pass
+
             # when the user enters the same number of characters as the sentence and the sentence is not empty
             if len(self.input.text)==len(self.text) and self.text!=self.empty:
                 # I will use the same iteration to go through the sentence and input text
