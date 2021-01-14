@@ -123,6 +123,7 @@ class SetupView(ac.View):
         self.start=None
         #initializing our back button
         self.back=None
+        self.error_text=""
         
     """ Called once when view is activated. """
     def on_show_view(self):
@@ -139,18 +140,18 @@ class SetupView(ac.View):
     """The on_draw method is called whenever we draw text,sprites and etc to the current view."""
     def on_draw(self):
         ac.start_render()
-        # Draw text
+        # Draw necessary texts
         ac.draw_text("Please enter the number of sentences.", self.window.width/2, 
                     self.window.height/2+200,ac.color.WHITE, 
                     font_size=50, 
                     anchor_x="center")    
-        # If a non integer is entered, it will result in an error. The following text will only be drawn once there is an error.
-        if error==True:
-            ac.draw_text("Please enter an integer!.", self.window.width/2, 
+        ac.draw_text(self.error_text, self.window.width/2, 
                         self.window.height/2+150,ac.color.RED, 
                         font_size=30, 
-                        anchor_x="center")    
-
+                        anchor_x="center")
+        # If a non integer is entered, it will result in an error, the following text will be changed to the error message.
+        if error==True:
+            self.error_text="Please enter an integer!"
 
     """ Everything under this function will run everytime we switch to this view  """
     def setup(self):
@@ -271,8 +272,6 @@ class GameView(ac.View):
     
     """ Everything under this function will run everytime we switch to this view  """
     def setup(self):
-        self.typo=0
-        self.wrong_input=0
         self.start_text="Start Typing to Start!"
         self.char=len(self.text)
         self.input.text= self.empty
@@ -329,7 +328,7 @@ class GameView(ac.View):
             # I will keep udpating the rate of typo. I use the percentage of wrong input from the total input or characters.
             self.typo=round(self.wrong_input/self.char*100,2)
             
-             # iterating the sentences and user input.
+             # loop for changing input box color based on whether the user input is correct or not.
             for i,c in enumerate(self.text):
                 # using the try block to allow iteration of multiple inputs and tries
                 try:
@@ -347,7 +346,7 @@ class GameView(ac.View):
 
             # when the user enters the same number of characters as the sentence and the sentence is not empty
             if len(self.input.text)==len(self.text) and self.text!=self.empty:
-                # I will use the same iteration to go through the sentence and input text
+                # loop to check if everything is entered correctly
                 for i,c in enumerate(self.text):
                     # using the try block to allow iteration of multiple inputs and tries
                     try:
@@ -364,6 +363,7 @@ class GameView(ac.View):
                 self.text=self.empty
                 # subtrac one from the number of sentences
                 self.sentences-=1
+            
             # when everything is resetted
             if self.text==self.empty and self.sentences!=0:
                 # we randomize again the sentence
@@ -373,8 +373,8 @@ class GameView(ac.View):
                 # resetting the color of the input box
                 self.input._set_color(ac.color.WHITE)
                 # adding the length of characters of the sentence to the total number of characters
-                self.char+=len(self.text)
-
+                self.char+=len(self.text) 
+                
             # when the game is over
             if self.sentences==0:
                 # calculating the speed of typing
@@ -391,7 +391,6 @@ class GameView(ac.View):
                 game_over_view.typo=self.typo
                 # change view to the game over view
                 self.window.show_view(game_over_view)
-
 
 
 class GameOverView(ac.View):
