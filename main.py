@@ -16,6 +16,7 @@ number=""
 # the global variable that will show whether the user has inputted an error
 error=False
 
+
 #arcade gui button class that we are going to be using for all of the buttons in the game
 class Button(ac.gui.UIFlatButton):
     #This function triggers when the buttons are pressed
@@ -260,6 +261,7 @@ class GameView(ac.View):
         self.sfx=ac.load_sound(path='typingsfx.mp3',streaming=True)
         self.background = None
         self.start_text=""
+        self.type=False
 
     """ Called once when view is activated. """
     def on_show_view(self):
@@ -301,7 +303,7 @@ class GameView(ac.View):
             self.start_text=""
             # whenever there is a keystroke, the sfx will play
             ac.play_sound(self.sfx,1.0)
-            # iterating the sentences and user input.
+            #iterating the sentences and user input.
             for i,c in enumerate(self.text):
                 # using the try block to allow iteration of multiple inputs and tries
                 try:
@@ -363,7 +365,7 @@ class GameView(ac.View):
                 self.text=self.empty
                 # subtrac one from the number of sentences
                 self.sentences-=1
-            
+
             # when everything is resetted
             if self.text==self.empty and self.sentences!=0:
                 # we randomize again the sentence
@@ -380,7 +382,7 @@ class GameView(ac.View):
                 # calculating the speed of typing
                 self.wpm=(self.char/5)//(self.time_taken/60)
                 # calculating the accuracy of typing
-                self.accuracy=(self.correct_input//self.char)*100
+                self.accuracy=(self.correct_input/self.char)*100
                 game_over_view = GameOverView()
                 # setting the attributes' values for the game_over_view with the already calculated attribute from the game view.
                 game_over_view.time_taken = self.time_taken
@@ -425,6 +427,7 @@ class GameOverView(ac.View):
         # rounding off the numbers to two decimal places
         time_taken_formatted = f"{round(self.time_taken, 2)} seconds"
         typo_formatted = f"{round(self.typo, 2)} %"
+        accuracy_formatted= f"{round(self.accuracy, 2)} %"
         
         # drawing the necessary text to show the results
         ac.draw_text("Game Over",self.window.width//2, self.window.height//1.25, ac.color.WHITE, 54,anchor_x='center')
@@ -432,7 +435,7 @@ class GameOverView(ac.View):
         ac.draw_text("Click to restart", self.window.width//2, self.window.height//2.5, ac.color.WHITE, 24,anchor_x='center')
         ac.draw_text(f"Time taken: {time_taken_formatted}",self.window.width/2,self.window.height//3.5,ac.color.GREEN,font_size=15,anchor_x="center")
         ac.draw_text(f"words per minute (WPM): {self.wpm}",self.window.width/2,self.window.height//4.5,ac.color.BLUEBONNET,font_size=15,anchor_x='center')
-        ac.draw_text(f"Accuracy: {self.accuracy}%",self.window.width/2,self.window.height//6,ac.color.YELLOW,font_size=15,anchor_x='center')
+        ac.draw_text(f"Accuracy: {accuracy_formatted}",self.window.width/2,self.window.height//6,ac.color.YELLOW,font_size=15,anchor_x='center')
         ac.draw_text(f"Characters: {self.char}",self.window.width/2,self.window.height//9.5,ac.color.NEON_CARROT,font_size=15,anchor_x='center')
         
         # if typo rate is smaller or equal to 30 and typing speed smaller or equal to 40 but not 0 
